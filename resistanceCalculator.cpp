@@ -1,8 +1,13 @@
 #include<iostream>
 #include<vector>
 
-struct junction{
+class junction;
+class wire;
+
+class junction{
+	public:
 	int id;
+	std::vector<wire*> connected_wires;
 	junction(): id(0) {}
 	junction(int id): id(id) {}
 };
@@ -20,7 +25,7 @@ int main(){
 	std::cout << "For example: add 1, 2, 2.5, for a resistance of 2.5 between the junctions 1 and 2\n";
 	std::cout << "To add multiple wires between the same junctions, just add them one by one\n";
 	std::vector<junction> junction_set;
-	std::vector<wire> wire_set;
+	std::vector<wire*> wire_set;
 	float jn_id;
 	char ch='y';
 	float resistance;
@@ -41,15 +46,18 @@ int main(){
 		std::cin >> end;
 		std::cout << "\nEnter the resistance value: ";
 		std::cin >> resistance;
-		wire w = wire(resistance, &junction_set[begin], &junction_set[end]);
+		wire* w = new wire(resistance, &junction_set[begin], &junction_set[end]);
 		wire_set.push_back(w);
+		junction_set[begin].connected_wires.push_back(w);
+		junction_set[end].connected_wires.push_back(w);
 		std::cout << "\nMore wires?(y/n) ";
 		std::cin >> ch;
 	}
 	std::cout << "\n";
-	for(auto i:wire_set){
-		std::cout << i.resistance << "\t" << i.begin->id << "\t" << i.end->id << "\n";
+	for(auto junction:junction_set){
+		for(auto wire:junction.connected_wires){
+			std::cout << wire->begin->id << "\t" << wire->end->id << "\n";
+		}
 	}
-
 	return 0;
 }
