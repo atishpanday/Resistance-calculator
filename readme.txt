@@ -34,3 +34,20 @@ struct junction{
 	-r1	r2	 0	r4     -r5
 	  0	r2     -r3      r4       0
 	 r1	 0      r3       0     -r5
+
+Method to find all the loops in the circuit:
+	suppose: junc0 is connected to junc1, junc1 is connected to junc2 and junc2 is connected to junc0.
+	then, junc0 junc1 and junc2 form a loop which satisfies the following condition: -i0r0 - i1r1 + i2r2 = 0 => assuming that current is positive when 
+	going from a lower junction number to a higher junction number.
+
+suppose a function calcLoops that finds the number of loops:
+
+function calcLoops(junction_set, wire_set):
+	 for(junction in junction_set):
+		findLoop(junction)
+
+where findLoop is a recursive function that takes in the root junction as argument and finds all the paths that reach back to the root junction
+	
+function findLoops(junction, junction):
+	for(wire in junction.connected_wires):
+		
