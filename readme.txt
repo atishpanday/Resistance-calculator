@@ -47,7 +47,30 @@ function calcLoops(junction_set, wire_set):
 		findLoop(junction)
 
 where findLoop is a recursive function that takes in the root junction as argument and finds all the paths that reach back to the root junction
+
+A loop from junc0 following a wire0 and coming back through wireA and a loop from junc0 following a wire0 and coming back through wireB implies a loop from wireA to wireB
+
+Method 2:
+Instead of trying to solve using the kirchoffs laws, we use basic knowledge of the properties of current, ie, current is more in wires that have lower resistance and vice versa.
+thus we follow the simple equation: V = IR
+However, in a complex circuit, it is difficult to determine the exact amount of current flowing through each wire since the exact potential diffference between the junctions is not known a priori. Thus we might apply the methods of iteration to find the right amount of current flowing through each wire. In this case, the final answer may be obtained by putting V = IRe where I will be the sum of the currents flowing through the wires connected to the first junction that is junction 0.
+
+Challenge: how do we determine the potential difference between any two junctions?
+
+Possible solution: We start with a random voltage at the first junction junction 0 which can be any value since the answer does not depend on it.
+We then assign equal currents to all wires connected to junction 0. Then we move to the junctions connected to those wires at the other end. We might then reach an interesting point where the voltage at one junction coming from different wires give different values due to differences in their resistances. Thus we must iterate and change the current values in those previous wires so that they must agree with one another. 
+
+Challenge: How much and which current should we change?
+
+Possible solution: We start with a value of 10V at junction 0 and then after each wire we subtract inrn for the nth wire having resistance rn and current in. For each junction, we check the incoming current and the outgoing currents and they must be equal. This will create a matrix of equations that can be simultaneoussly solved to get the answer Re.
+
+
+
+
+
+
+
+
+
+
 	
-function findLoops(junction, junction):
-	for(wire in junction.connected_wires):
-		
