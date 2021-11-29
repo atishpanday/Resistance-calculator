@@ -66,7 +66,7 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 
 	for(auto i:solution_matrix){
 		for(auto j:i){
-			std::cout << "\t" << j;
+			std::cout << j << "\t";
 		}
 		std::cout << "\n";
 	}
@@ -74,8 +74,10 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 	std::cout << "\n";
 
 	for(auto i:target_vector){
-		std::cout << "\t" << i;
+		std::cout << i << "\t";
 	}
+
+	std::cout << "\n";
 
 }
 
