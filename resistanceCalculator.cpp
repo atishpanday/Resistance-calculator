@@ -21,30 +21,45 @@ class wire{
 	wire(float resistance, junction* begin, junction* end): resistance(resistance), begin(begin), end(end) {}
 };
 
-void calculateResistance(int max_junction_id, std::vector<junction> junction_set, std::vector<wire*> wire_set){
-	float voltage=10.0f;
-	std::vector<std::vector<float>> transformation_matrix;
-	std::vector<float> transformation_matrix_row;
-	std::vector<float> solution_vector;
-	std::vector<float> target_vector;
-	int num_of_wires;
-	for(int i=1; i<max_junction_id; i++){
-		num_of_wires = junction_set[i].connected_wires.size();
-		transformation_matrix_row = {};
-		for(int j=1; j<num_of_wires; j++){
-			if(junction_set[i].connected_wires[j]->begin.id == junction_set[i].id
-				      && junction_set[i].connected_wires[j]->end.id > junction_set[i].id){
-				transformation_matrix_row.push_back(1);
+
+void calculateResistance(int max_junction_id, std::vector<junction>& junction_set, std::vector<wire*>& wire_set){
+	std::vector<std::vector<float>> transformation_matrix(max_junction_id+1, std::vector<float> (max_junction_id+1));
+	std::vector<float> transformation_matrix_row(max_junction_id+1);
+	
+	for(int junc=1; junc<=max_junction_id; junc++){
+		if(junc == max_junction_id){
+			for(auto wire:junction_set[junc].connected_wires){
+				transformation_matrix_row[junc] -= (1/wire->resistance);
+				if(wire->begin->id == junc)
+					transformation_matrix_row[wire->end->id] += 1/(wire->resistance);
+				else
+					transformation_matrix_row[wire->begin->id] += 1/(wire->resistance);
 			}
-			else if(junction_set[i].connected_wires[j]->end.id == junction_set.id
-					&& junction_set[i].connected_wires[j]->begin.id > junction_set[i].id){
-				transformation_matrix_row.push_back(-1);
+			for(auto wire:junction_set[0].connected_wires){
+				transformation_matrix_row[0] -= (1/wire->resistance);
+				if(wire->begin->id == 0)
+					transformation_matrix_row[wire->end->id] += 1/(wire->resistance);
+				else
+					transformation_matrix_row[wire->begin->id] += 1/(wire->resistance);
 			}
-			else {
-				transformation_matrix_row.push_back(0);
+		} else {
+			for(auto wire:junction_set[junc].connected_wires){
+				transformation_matrix_row[junc] -= (1/wire->resistance);
+				if(wire->begin->id == junc)
+					transformation_matrix_row[wire->end->id] += 1/(wire->resistance);
+				else
+					transformation_matrix_row[wire->begin->id] += 1/(wire->resistance);
 			}
 		}
-		transformation_matrix.push_back(transformation_matrix_row);
+		transformation_matrix[junc] = transformation_matrix_row;
+		for(int i=0; i<=max_junction_id; i++)
+			transformation_matrix_row[i] = 0;
+	}
+
+	for(int i=0; i<=max_junction_id; i++){
+		for(int j=0; j<=max_junction_id; j++)
+			std::cout << transformation_matrix[i][j] << "\t";
+		std::cout << "\n";
 	}
 }
 
@@ -89,6 +104,8 @@ int main(){
 		}
 		std::cout << "\n";
 	}
+
+	calculateResistance(junction_set.size()-1, junction_set, wire_set);
 	return 0;
 }
 
