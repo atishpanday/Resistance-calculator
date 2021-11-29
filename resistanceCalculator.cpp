@@ -21,11 +21,12 @@ class wire{
 	wire(float resistance, junction* begin, junction* end): resistance(resistance), begin(begin), end(end) {}
 };
 
-
 void calculateResistance(int max_junction_id, std::vector<junction>& junction_set, std::vector<wire*>& wire_set){
-	std::vector<std::vector<float>> transformation_matrix(max_junction_id+1, std::vector<float> (max_junction_id+1));
+	std::vector<std::vector<float>> transformation_matrix(max_junction_id, std::vector<float> (max_junction_id+1));
 	std::vector<float> transformation_matrix_row(max_junction_id+1);
-	
+	std::vector<float> target_vector(max_junction_id);
+	std::vector<std::vector<float>> solution_matrix(max_junction_id, std::vector<float> (max_junction_id));
+
 	for(int junc=1; junc<=max_junction_id; junc++){
 		if(junc == max_junction_id){
 			for(auto wire:junction_set[junc].connected_wires){
@@ -51,16 +52,31 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 					transformation_matrix_row[wire->begin->id] += 1/(wire->resistance);
 			}
 		}
-		transformation_matrix[junc] = transformation_matrix_row;
+		transformation_matrix[junc-1] = transformation_matrix_row;
 		for(int i=0; i<=max_junction_id; i++)
 			transformation_matrix_row[i] = 0;
 	}
 
-	for(int i=0; i<=max_junction_id; i++){
-		for(int j=0; j<=max_junction_id; j++)
-			std::cout << transformation_matrix[i][j] << "\t";
+	for(int i=0; i<max_junction_id; i++){
+		target_vector[i] = transformation_matrix[i][0];
+		for(int j=1; j<=max_junction_id; j++){
+			solution_matrix[i][j-1] = transformation_matrix[i][j];
+		}
+	}
+
+	for(auto i:solution_matrix){
+		for(auto j:i){
+			std::cout << "\t" << j;
+		}
 		std::cout << "\n";
 	}
+
+	std::cout << "\n";
+
+	for(auto i:target_vector){
+		std::cout << "\t" << i;
+	}
+
 }
 
 int main(){
@@ -100,7 +116,7 @@ int main(){
 	std::cout << "\n";
 	for(auto junction:junction_set){
 		for(auto wire:junction.connected_wires){
-			std::cout << wire->begin->id << "\t" << wire->resistance << "\t" << wire->end->id;
+			std::cout << wire->begin->id << "\t" << wire->resistance << "\t" << wire->end->id << "\n";
 		}
 		std::cout << "\n";
 	}
