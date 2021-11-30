@@ -2,8 +2,8 @@
 #define INVERSE
 bool inverse(std::vector<std::vector<float>>& A, std::vector<std::vector<float>>& inverse){
     int N = A.size();
-	int det = determinant(A, N);
-    if (det == 0){
+	float det = determinant(A, N);
+    if (det == 0.0f){
 		std::cout << "Singular matrix, can't find its inverse";
         return false;
     }

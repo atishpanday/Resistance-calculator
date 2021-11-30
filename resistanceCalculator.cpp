@@ -4,6 +4,7 @@
 #include"determinant.h"
 #include"adjoint.h"
 #include"inverse.h"
+#include"matrixmultiplication.h"
 
 class junction;
 class wire;
@@ -25,11 +26,14 @@ class wire{
 	wire(float resistance, junction* begin, junction* end): resistance(resistance), begin(begin), end(end) {}
 };
 
-void calculateResistance(int max_junction_id, std::vector<junction>& junction_set, std::vector<wire*>& wire_set){
+float calculateResistance(int max_junction_id, std::vector<junction>& junction_set, std::vector<wire*>& wire_set){
 	std::vector<std::vector<float>> transformation_matrix(max_junction_id, std::vector<float> (max_junction_id+1));
 	std::vector<float> transformation_matrix_row(max_junction_id+1);
-	std::vector<float> target_vector(max_junction_id);
-	std::vector<std::vector<float>> solution_matrix(max_junction_id, std::vector<float> (max_junction_id));
+	std::vector<float> target_vector(max_junction_id-1);
+	std::vector<std::vector<float>> solution_matrix(max_junction_id-1, std::vector<float> (max_junction_id-1));
+	std::vector<float> solution_vector(max_junction_id-1);
+	std::vector<std::vector<float>> inverse_matrix(max_junction_id-1, std::vector<float> (max_junction_id-1));	
+	float total_current = 0.0f;
 
 	for(int junc=1; junc<=max_junction_id; junc++){
 		if(junc == max_junction_id){
@@ -61,38 +65,42 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 			transformation_matrix_row[i] = 0;
 	}
 
-
-	for(int i=0; i<max_junction_id; i++){
-		target_vector[i] = transformation_matrix[i][0];
-		for(int j=1; j<=max_junction_id; j++){
+	// assigning the values of transformation matrix to target matrix and solution matrix
+	for(int i=0; i<max_junction_id-1; i++){
+		target_vector[i] -= transformation_matrix[i][0];
+		for(int j=1; j<max_junction_id; j++){
 			solution_matrix[i][j-1] = transformation_matrix[i][j];
 		}
 	}
 
-	for(auto i:solution_matrix){
-		for(auto j:i){
-			std::cout << j << "\t";
-		}
-		std::cout << "\n";
-	}
+//	for(auto i:solution_matrix){
+//		for(auto j:i){
+//			std::cout << j << "\t";
+//		}
+//		std::cout << "\n";
+//	}
 
-	std::cout << "\n";
 
-	for(auto i:target_vector){
-		std::cout << i << "\t";
-	}
+//	for(auto i:target_vector){
+//		std::cout << i << "\t";
+//	}
 
-	std::cout << "\n";
-
-	std::vector<std::vector<float>> inverse_matrix(max_junction_id, std::vector<float> (max_junction_id));	
 	if(inverse(solution_matrix, inverse_matrix)){
-		for(auto i:inverse_matrix){
-			for(auto j:i){
-				std::cout << j << "\t";
-			}
-			std::cout << "\n";
+	} else {
+		std::cout << "You entered an invalid circuit. Please make sure the circuit isn't redundant!";
+	}
+
+	matrixmultiply(solution_vector, inverse_matrix, target_vector);
+
+	for(auto wire:junction_set[0].connected_wires){
+		if(wire->begin->id == 0){
+			total_current += (1 - (solution_vector[wire->end->id-1]))/wire->resistance;
+		} else {
+			total_current += (1 - (solution_vector[wire->end->id-1]))/wire->resistance;
 		}
 	}
+
+	return (1/total_current);
 }
 
 int main(){
@@ -104,7 +112,7 @@ int main(){
 	std::vector<wire*> wire_set;
 	float jn_id;
 	char ch='y';
-	float resistance;
+	float resistance = 0.0f;
 	int begin, end;
 	while(ch=='y'){
 		std::cout << "\nAdd a junction: ";
@@ -129,15 +137,23 @@ int main(){
 		std::cout << "\nMore wires?(y/n) ";
 		std::cin >> ch;
 	}
-	std::cout << "\n";
-	for(auto junction:junction_set){
-		for(auto wire:junction.connected_wires){
+	resistance = 0.0f;
+	if(wire_set.size() == 2){
+		for(auto wire:wire_set){
+			resistance += 1/wire->resistance;
+		}
+		resistance = 1/resistance;
+		std::cout << "\n\nThe equivalent resistance is: " << resistance << " ohms\n";
+	} else {
+		std::cout << "\n";
+		std::cout << "begin junction\tresistance\tend junction\n";
+		for(auto wire:wire_set){
 			std::cout << wire->begin->id << "\t" << wire->resistance << "\t" << wire->end->id << "\n";
 		}
 		std::cout << "\n";
-	}
 
-	calculateResistance(junction_set.size()-1, junction_set, wire_set);
+		std::cout << "\n\nThe equivalent resistance is: " << calculateResistance(junction_set.size()-1, junction_set, wire_set) << " ohms\n";
+	}
 	return 0;
 }
 
