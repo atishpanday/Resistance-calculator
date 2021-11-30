@@ -1,5 +1,9 @@
 #include<iostream>
 #include<vector>
+#include"cofactor.h"
+#include"determinant.h"
+#include"adjoint.h"
+#include"inverse.h"
 
 class junction;
 class wire;
@@ -57,6 +61,7 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 			transformation_matrix_row[i] = 0;
 	}
 
+
 	for(int i=0; i<max_junction_id; i++){
 		target_vector[i] = transformation_matrix[i][0];
 		for(int j=1; j<=max_junction_id; j++){
@@ -79,6 +84,15 @@ void calculateResistance(int max_junction_id, std::vector<junction>& junction_se
 
 	std::cout << "\n";
 
+	std::vector<std::vector<float>> inverse_matrix(max_junction_id, std::vector<float> (max_junction_id));	
+	if(inverse(solution_matrix, inverse_matrix)){
+		for(auto i:inverse_matrix){
+			for(auto j:i){
+				std::cout << j << "\t";
+			}
+			std::cout << "\n";
+		}
+	}
 }
 
 int main(){
