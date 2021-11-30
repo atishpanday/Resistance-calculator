@@ -3,9 +3,9 @@ THE PROBLEM STATEMENT: WE NEED TO TAKE AS INPUT THE CIRCUIT BETWEEN TWO END JUNC
 EXAMPLE:
 
 A ---------5-----------B
-|__________3___________|
+|----------3-----------|
 
-Suppose A and B are connected by two wires in parallel having resistances 5ohms and 3 ohms. In this case the equivalent resistance would be:
+Suppose A and B are connected by two wires in parallel having resistances 5 ohms and 3 ohms. In this case the equivalent resistance would be:
 
 R(eq) = 1/(1/5 + 1/3) = 15/8 = 1.99ohms
 
