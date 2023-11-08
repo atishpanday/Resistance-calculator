@@ -6,29 +6,31 @@
 #define max_wires 100
 
 double calculate_resistance(int num_wires, int num_jns, junction jn_set[], wire w_set[]) {
-	// variables related to solving the system of linear equations produced by KCL
-	double kcl_mat[max_jns][max_jns] = {0};
-	double rhs_vec[max_jns] = {0};
-	double inv_mat[max_jns][max_jns] = {0};
-	double sol_vec[max_jns] = {0};
 	
-	// set the current in the last wire equal to 1 arbitrarily
-	w_set[num_wires - 1].set_current(1);
+	double kcl_mat[max_jns][max_jns] = {0}; // stores the coefficients of the equations of nodal analysis
+	double rhs_vec[max_jns] = {0}; // right hand side vector of the equations of nodal analysis
+	double inv_mat[max_jns][max_jns] = {0}; // inverse matrix to solve the equations
+	double sol_vec[max_jns] = {0}; // solution vector that will store the values of the potentials of all junctions except 0th and last
+
 	
 	for(int jid = 1; jid < num_jns - 1; jid++) {
 		for(int i = 0; i < jn_set[jid].get_num_wires(); i++) {
 		
-			kcl_mat[jid - 1][jid - 1] += 1 / jn_set[jid].connected_wires[i] -> get_resistance();
+			kcl_mat[jid - 1][jid - 1] += 1 / jn_set[jid].connected_wires[i] -> get_resistance(); // sum of inverse of resistances of all connected wires
 			
-			if(jn_set[jid].connected_wires[i] -> get_other_end(jid).get_id() == 0) {
-				rhs_vec[jid - 1] = jn_set[0].get_voltage() / jn_set[jid].connected_wires[i] -> get_resistance();
+			if(jn_set[jid].connected_wires[i] -> get_other_end(jid) -> get_id() == 0) {
+				rhs_vec[jid - 1] = jn_set[0].get_voltage() / jn_set[jid].connected_wires[i] -> get_resistance(); 
+				// if this wire is connected to the first junction, then simply add the corresponding inverse of resistance to the rhs vector 
 			}
 			
-			else if(jn_set[jid].connected_wires[i] -> get_other_end(jid).get_id() == num_jns - 1) {
+			else if(jn_set[jid].connected_wires[i] -> get_other_end(jid) -> get_id() == num_jns - 1) {
+				// no code to run if the other end is the last junction since the potential there is 0
 			}
 			
 			else {
-				kcl_mat[jid - 1][jn_set[jid].connected_wires[i] -> get_other_end(jid).get_id() - 1] = -1 / jn_set[jid].connected_wires[i] -> get_resistance();
+				kcl_mat[jid - 1][jn_set[jid].connected_wires[i] -> get_other_end(jid) -> get_id() - 1] = 
+					-1 / jn_set[jid].connected_wires[i] -> get_resistance();
+				// all other wires are added with the negative of inverse of their resistances
 			}
 		}
 	}
@@ -60,7 +62,7 @@ double calculate_resistance(int num_wires, int num_jns, junction jn_set[], wire 
 	
 	// set the current in each wire using the potential difference
 	for(int i = 0; i < num_wires; i++) {
-		double v = jn_set[w_set[i].get_begin().get_id()].get_voltage() - jn_set[w_set[i].get_end().get_id()].get_voltage();
+		double v = w_set[i].get_begin() -> get_voltage() - w_set[i].get_end() -> get_voltage();
 		w_set[i].set_current(v / w_set[i].get_resistance());
 	}
 	
@@ -108,7 +110,7 @@ int main() {
 		std::cout << "\nEnter the resistance value: ";
 		std::cin >> resistance;
 		 
-		w_set[num_wires] = wire(num_wires, resistance, jn_set[begin], jn_set[end]);
+		w_set[num_wires] = wire(num_wires, resistance, &jn_set[begin], &jn_set[end]);
 		jn_set[begin].set_connected_wires(&w_set[num_wires]);
 		jn_set[end].set_connected_wires(&w_set[num_wires]);
 		
@@ -132,8 +134,8 @@ int main() {
 		std::cout << "\nb\tr\te\n";
 		
 		for(int i = 0; i < num_wires; i++) {
-			std::cout << w_set[i].get_begin().get_id() << "\t" << 
-			w_set[i].get_resistance() << "\t" << w_set[i].get_end().get_id() << "\n";
+			std::cout << w_set[i].get_begin() -> get_id() << "\t" << 
+			w_set[i].get_resistance() << "\t" << w_set[i].get_end() -> get_id() << "\n";
 		}
 		
 		std::cout << "\n";
@@ -153,8 +155,8 @@ int main() {
 			std::cout << "\n";
 			
 			for(int i = 0; i < num_wires; i++) {
-				std::cout << "\nThe current between junctions " << w_set[i].get_begin().get_id() << 
-					" and " << w_set[i].get_end().get_id() << " is: " << w_set[i].get_current();
+				std::cout << "\nThe current between junctions " << w_set[i].get_begin() -> get_id() << 
+					" and " << w_set[i].get_end() -> get_id() << " is: " << w_set[i].get_current();
 			}
 		}
 	}

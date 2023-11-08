@@ -40,14 +40,14 @@ class wire {
 	int id;
 	double resistance;
 	double current;
-	junction begin;
-	junction end;
+	junction* begin;
+	junction* end;
 	
 	public:
 	
 	wire(): id(0), resistance(0), current(0) {}
 	
-	wire(int id, double res, junction beg, junction end): id(id), resistance(res), begin(beg), end(end) {}
+	wire(int id, double res, junction* beg, junction* end): id(id), resistance(res), begin(beg), end(end) {}
 	
 	int get_id() {
 		return id;
@@ -69,16 +69,16 @@ class wire {
 		return current;
 	}
 	
-	junction get_begin() {
+	junction* get_begin() {
 		return begin;
 	}
 	
-	junction get_end() {
+	junction* get_end() {
 		return end;
 	}
 	
-	junction get_other_end(int jid) {
-		if(jid == begin.get_id()) {
+	junction* get_other_end(int jid) {
+		if(jid == begin -> get_id()) {
 			return end;
 		}
 		else {
