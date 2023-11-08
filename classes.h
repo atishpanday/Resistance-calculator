@@ -28,11 +28,16 @@ class junction {
 		return num_wires;
 	}
 	
-	void set_connected_wires(wire w);
+	void set_connected_wires(wire* w) {
+		connected_wires[num_wires] = w;
+		num_wires++;
+	}
+
 	
 };
 
 class wire {
+	int id;
 	double resistance;
 	double current;
 	junction begin;
@@ -40,9 +45,13 @@ class wire {
 	
 	public:
 	
-	wire(): resistance(0), current(0) {}
+	wire(): id(0), resistance(0), current(0) {}
 	
-	wire(double resistance, junction begin, junction end): resistance(resistance), begin(begin), end(end) {}
+	wire(int id, double res, junction beg, junction end): id(id), resistance(res), begin(beg), end(end) {}
+	
+	int get_id() {
+		return id;
+	}
 	
 	void set_resistance(double res) {
 		resistance = res;
@@ -66,5 +75,14 @@ class wire {
 	
 	junction get_end() {
 		return end;
+	}
+	
+	junction get_other_end(int jid) {
+		if(jid == begin.get_id()) {
+			return end;
+		}
+		else {
+			return begin;
+		}
 	}
 };

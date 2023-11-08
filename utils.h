@@ -1,7 +1,7 @@
 
 // Matrix multiplication
 
-void matrix_multiply(double sol_row[], double inv_mat[][100], double target[], int N) {
+void matrix_multiply(double sol_row[], double inv_mat[][50], double target[], int N) {
 	for(int i = 0; i < N; i++) {
 		for(int j = 0; j < N; j++) {
 			sol_row[i] += inv_mat[i][j] * target[j];
@@ -11,7 +11,7 @@ void matrix_multiply(double sol_row[], double inv_mat[][100], double target[], i
 
 // Cofactor of a matrix
 
-void cofactor(double A[][100], double temp[][100], int p, int q, int N) {
+void cofactor(double A[][50], double temp[][50], int p, int q, int N) {
 	int i = 0, j = 0;
 	
 	for (int row = 0; row < N; row++) { 
@@ -29,13 +29,13 @@ void cofactor(double A[][100], double temp[][100], int p, int q, int N) {
 
 // Determinant of a matrix
 
-double determinant(double vec[][100], int N){
+double determinant(double vec[][50], int N){
 
 	if(N == 1) {
 		return vec[0][0];
 	}
 
-	double temp[100][100] = {0};
+	double temp[50][50] = {0};
 	int sign = 1;
 	double D = 0;
 	
@@ -50,16 +50,16 @@ double determinant(double vec[][100], int N){
 
 // Adjoint of a matrix
 
-void adjoint(double A[][100], double adj[][100], int N){
+void adjoint(double A[][50], double adj[][50], int N){
 	if (N == 1) {
         	adj[0][0] = 1;
         	return;
     	}
     
 	int sign = 1;
-	double temp[100][100];
-    	for (int i=0; i<N; i++) {
-        	for (int j=0; j<N; j++) {
+	double temp[50][50];
+    	for (int i = 0; i < N; i++) {
+        	for (int j = 0; j < N; j++) {
 		    	cofactor(A, temp, i, j, N);
 		    	sign = ((i+j) % 2 == 0) ? 1 : -1;
 		    	adj[j][i] = sign * determinant(temp, N-1);
@@ -69,14 +69,14 @@ void adjoint(double A[][100], double adj[][100], int N){
 
 // Inverse of a matrix
 
-bool inverse(double A[][100], double inverse[][100], int N) {
+bool inverse(double A[][50], double inverse[][50], int N) {
 	double det = determinant(A, N);
 	
 	if (det == 0) {
 		return false;
 	}
  
-	double adj[100][100];
+	double adj[50][50];
     	adjoint(A, adj, N);
     	
 	for (int i = 0; i < N; i++) {
