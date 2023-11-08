@@ -53,13 +53,20 @@ double calculate_resistance(int num_wires, int num_jns, junction jn_set[], wire 
 		std::cout << sol_vec[i] << " " << rhs_vec[i] << "\n";
 	}
 	
+	// set the potential at each junction
 	for(int i = 0; i < num_jns - 2; i++) {
 		jn_set[i + 1].set_voltage(sol_vec[i]);
-		w_set[i].set_current(sol_vec[i] / w_set[i].get_resistance());
+	}
+	
+	// set the current in each wire using the potential difference
+	for(int i = 0; i < num_wires; i++) {
+		double v = jn_set[w_set[i].get_begin().get_id()].get_voltage() - jn_set[w_set[i].get_end().get_id()].get_voltage();
+		w_set[i].set_current(v / w_set[i].get_resistance());
 	}
 	
 	double total_current = 0;
 	
+	// set the total current flowing through the circuit
 	for(int i = 0; i < jn_set[0].get_num_wires(); i++) {
 		total_current += jn_set[0].connected_wires[i] -> get_current();
 	}
@@ -141,6 +148,13 @@ int main() {
 			
 			for(int i = 0; i < num_jns; i++) {
 				std::cout << "\nThe voltage at junction " << i << " is: " << jn_set[i].get_voltage();
+			}
+			
+			std::cout << "\n";
+			
+			for(int i = 0; i < num_wires; i++) {
+				std::cout << "\nThe current between junctions " << w_set[i].get_begin().get_id() << 
+					" and " << w_set[i].get_end().get_id() << " is: " << w_set[i].get_current();
 			}
 		}
 	}
